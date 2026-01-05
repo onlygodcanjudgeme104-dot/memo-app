@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memo — シンプルメモ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f8f7f4;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --accent: #2d5f3f;
+            --accent-light: #4a8c62;
+            --border: #e0ddd8;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        /* ヘッダー */
+        header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .user-email {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+        }
+
+        .btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+        }
+
+        /* 認証画面 */
+        #auth-section {
+            max-width: 400px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #auth-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .error {
+            color: #c53030;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        /* メモ作成エリア */
+        #memo-create {
+            margin-bottom: 2rem;
+            animation: slideUp 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            background: var(--bg-secondary);
+            transition: all 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(45, 95, 63, 0.1);
+        }
+
+        .create-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* メモリスト */
+        #memo-list {
+            animation: slideUp 0.6s ease-out 0.4s both;
+        }
+
+        .memo-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .memo-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .memo-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .memo-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .memo-content {
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .memo-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .memo-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .memo-actions button {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        /* 編集モード */
+        .memo-item.editing .memo-content {
+            display: none;
+        }
+
+        .memo-item.editing .memo-footer {
+            display: none;
+        }
+
+        .memo-item textarea {
+            margin-bottom: 0.75rem;
+        }
+
+        .edit-actions {
+            display: none;
+            gap: 0.5rem;
+        }
+
+        .memo-item.editing .edit-actions {
+            display: flex;
+        }
+
+        /* ローディング */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .memo-item {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 認証セクション -->
+        <div id="auth-section">
+            <h2>Memo</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">クラウド同期メモアプリ</p>
+
+            <div class="input-group">
+                <input type="email" id="email" placeholder="メールアドレス" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="パスワード（6文字以上）" required>
+            </div>
+            <div id="auth-error" class="error hidden"></div>
+
+            <button class="btn btn-primary" onclick="signUp()" style="width: 100%; margin-bottom: 0.5rem;">新規登録</button>
+            <button class="btn" onclick="signIn()" style="width: 100%;">ログイン</button>
+        </div>
+
+        <!-- メインアプリ（認証後に表示） -->
+        <div id="app-section" class="hidden">
+            <header>
+                <h1>Memo</h1>
+                <div class="user-info">
+                    <span class="user-email" id="user-email"></span>
+                    <button class="btn" onclick="signOut()">ログアウト</button>
+                </div>
+            </header>
+
+            <!-- メモ作成 -->
+            <div id="memo-create">
+                <textarea id="new-memo-text" placeholder="新しいメモを書く..."></textarea>
+                <div class="create-actions">
+                    <button class="btn btn-primary" onclick="createMemo()">メモを保存</button>
+                    <button class="btn" onclick="clearNewMemo()">クリア</button>
+                </div>
+            </div>
+
+            <!-- ローディング -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>メモを読み込み中...</p>
+            </div>
+
+            <!-- メモリスト -->
+            <div id="memo-list"></div>
+
+            <!-- 空の状態 -->
+            <div id="empty-state" class="empty-state hidden">
+                <p>📝</p>
+                <p>まだメモがありません</p>
+                <p style="font-size: 0.9rem;">上のテキストエリアから最初のメモを作成しましょう</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // ⚠️ 重要: ここにあなたのFirebase設定を入力してください
+        // Firebase Console (https://console.firebase.google.com/) でプロジェクトを作成し、
+        // 「プロジェクトの設定」→「全般」→「マイアプリ」から設定をコピーしてください
+        const firebaseConfig = {
+            apiKey: "AIzaSyAlsvgbmZRaHKQG-GGk2LElNlIaeRByrc8",
+            authDomain: "memo-1336a.firebaseapp.com",
+            projectId: "memo-1336a",
+            storageBucket: "memo-1336a.firebasestorage.app",
+            messagingSenderId: "869953439148",
+            appId: "1:869953439148:web:57b60f3d4d9c5de9532609"
+        };
+
+        // Firebase初期化
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let memosUnsubscribe = null;
+
+        // グローバル関数
+        window.signUp = async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('auth-error');
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                errorDiv.classList.add('hidden');
+            } catch (error) {
+                errorDiv.textContent = getErrorMessage(error.code);
+                errorDiv.classList.remove('hidden');
+            }
+        };
+
+        window.signIn = async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('auth-error');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                errorDiv.classList.add('hidden');
+            } catch (error) {
+                errorDiv.textContent = getErrorMessage(error.code);
+                errorDiv.classList.remove('hidden');
+            }
+        };
+
+        window.signOut = async () => {
+            await firebaseSignOut(auth);
+        };
+
+        window.createMemo = async () => {
+            const text = document.getElementById('new-memo-text').value.trim();
+            if (!text) return;
+
+            try {
+                await addDoc(collection(db, `users/${currentUser.uid}/memos`), {
+                    text: text,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+                document.getElementById('new-memo-text').value = '';
+            } catch (error) {
+                console.error('メモ作成エラー:', error);
+                alert('メモの作成に失敗しました');
+            }
+        };
+
+        window.clearNewMemo = () => {
+            document.getElementById('new-memo-text').value = '';
+        };
+
+        window.editMemo = (memoId, currentText) => {
+            const memoItem = document.querySelector(`[data-memo-id="${memoId}"]`);
+            memoItem.classList.add('editing');
+
+            const textarea = document.createElement('textarea');
+            textarea.value = currentText;
+            textarea.style.minHeight = '80px';
+
+            const editActions = memoItem.querySelector('.edit-actions');
+            memoItem.insertBefore(textarea, editActions);
+
+            editActions.innerHTML = `
+                <button class="btn btn-primary" onclick="saveMemo('${memoId}')">保存</button>
+                <button class="btn" onclick="cancelEdit('${memoId}')">キャンセル</button>
+            `;
+        };
+
+        window.saveMemo = async (memoId) => {
+            const memoItem = document.querySelector(`[data-memo-id="${memoId}"]`);
+            const textarea = memoItem.querySelector('textarea');
+            const newText = textarea.value.trim();
+
+            if (!newText) {
+                alert('メモの内容を入力してください');
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, `users/${currentUser.uid}/memos`, memoId), {
+                    text: newText,
+                    updatedAt: serverTimestamp()
+                });
+            } catch (error) {
+                console.error('メモ更新エラー:', error);
+                alert('メモの更新に失敗しました');
+            }
+        };
+
+        window.cancelEdit = (memoId) => {
+            const memoItem = document.querySelector(`[data-memo-id="${memoId}"]`);
+            memoItem.classList.remove('editing');
+            const textarea = memoItem.querySelector('textarea');
+            if (textarea) textarea.remove();
+        };
+
+        window.deleteMemo = async (memoId) => {
+            if (!confirm('このメモを削除しますか？')) return;
+
+            try {
+                await deleteDoc(doc(db, `users/${currentUser.uid}/memos`, memoId));
+            } catch (error) {
+                console.error('メモ削除エラー:', error);
+                alert('メモの削除に失敗しました');
+            }
+        };
+
+        // 認証状態の監視
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('app-section').classList.remove('hidden');
+                document.getElementById('user-email').textContent = user.email;
+                loadMemos();
+            } else {
+                currentUser = null;
+                document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('app-section').classList.add('hidden');
+                if (memosUnsubscribe) {
+                    memosUnsubscribe();
+                    memosUnsubscribe = null;
+                }
+            }
+        });
+
+        // メモのリアルタイム読み込み
+        function loadMemos() {
+            const memoList = document.getElementById('memo-list');
+            const loading = document.getElementById('loading');
+            const emptyState = document.getElementById('empty-state');
+
+            const q = query(
+                collection(db, `users/${currentUser.uid}/memos`),
+                orderBy('createdAt', 'desc')
+            );
+
+            memosUnsubscribe = onSnapshot(q, (snapshot) => {
+                loading.classList.add('hidden');
+
+                if (snapshot.empty) {
+                    memoList.innerHTML = '';
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+
+                emptyState.classList.add('hidden');
+                memoList.innerHTML = '';
+
+                snapshot.forEach((doc) => {
+                    const memo = doc.data();
+                    const memoItem = createMemoElement(doc.id, memo);
+                    memoList.appendChild(memoItem);
+                });
+            }, (error) => {
+                console.error('メモ読み込みエラー:', error);
+                loading.innerHTML = '<p style="color: #c53030;">メモの読み込みに失敗しました</p>';
+            });
+        }
+
+        // メモ要素の作成
+        function createMemoElement(id, memo) {
+            const div = document.createElement('div');
+            div.className = 'memo-item';
+            div.setAttribute('data-memo-id', id);
+
+            const createdAt = memo.createdAt ? new Date(memo.createdAt.seconds * 1000).toLocaleString('ja-JP') : '作成中...';
+
+            div.innerHTML = `
+                <div class="memo-content">${escapeHtml(memo.text)}</div>
+                <div class="memo-footer">
+                    <span>${createdAt}</span>
+                    <div class="memo-actions">
+                        <button class="btn" onclick="editMemo('${id}', ${JSON.stringify(memo.text).replace(/'/g, "&#39;")})">編集</button>
+                        <button class="btn" onclick="deleteMemo('${id}')">削除</button>
+                    </div>
+                </div>
+                <div class="edit-actions"></div>
+            `;
+
+            return div;
+        }
+
+        // ヘルパー関数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getErrorMessage(code) {
+            const messages = {
+                'auth/email-already-in-use': 'このメールアドレスは既に使用されています',
+                'auth/invalid-email': 'メールアドレスの形式が正しくありません',
+                'auth/weak-password': 'パスワードは6文字以上で設定してください',
+                'auth/user-not-found': 'ユーザーが見つかりません',
+                'auth/wrong-password': 'パスワードが正しくありません',
+                'auth/invalid-credential': 'メールアドレスまたはパスワードが正しくありません'
+            };
+            return messages[code] || 'エラーが発生しました';
+        }
+    </script>
+</body>
+
+</html>
