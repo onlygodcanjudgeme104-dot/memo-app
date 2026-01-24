@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memo — シンプルメモ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-primary: #f8f7f4;
@@ -56,7 +53,6 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -123,15 +119,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         #auth-section h2 {
@@ -178,7 +167,6 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -314,9 +302,7 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         .hidden {
@@ -349,14 +335,13 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <!-- 認証セクション -->
         <div id="auth-section">
             <h2>Memo</h2>
             <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">クラウド同期メモアプリ</p>
-
+            
             <div class="input-group">
                 <input type="email" id="email" placeholder="メールアドレス" required>
             </div>
@@ -364,7 +349,7 @@
                 <input type="password" id="password" placeholder="パスワード（6文字以上）" required>
             </div>
             <div id="auth-error" class="error hidden"></div>
-
+            
             <button class="btn btn-primary" onclick="signUp()" style="width: 100%; margin-bottom: 0.5rem;">新規登録</button>
             <button class="btn" onclick="signIn()" style="width: 100%;">ログイン</button>
         </div>
@@ -413,8 +398,6 @@
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // ⚠️ 重要: ここにあなたのFirebase設定を入力してください
-        // Firebase Console (https://console.firebase.google.com/) でプロジェクトを作成し、
-        // 「プロジェクトの設定」→「全般」→「マイアプリ」から設定をコピーしてください
         const firebaseConfig = {
             apiKey: "AIzaSyAlsvgbmZRaHKQG-GGk2LElNlIaeRByrc8",
             authDomain: "memo-1336a.firebaseapp.com",
@@ -486,62 +469,6 @@
             document.getElementById('new-memo-text').value = '';
         };
 
-        window.editMemo = (memoId, currentText) => {
-            const memoItem = document.querySelector(`[data-memo-id="${memoId}"]`);
-            memoItem.classList.add('editing');
-
-            const textarea = document.createElement('textarea');
-            textarea.value = currentText;
-            textarea.style.minHeight = '80px';
-
-            const editActions = memoItem.querySelector('.edit-actions');
-            memoItem.insertBefore(textarea, editActions);
-
-            editActions.innerHTML = `
-                <button class="btn btn-primary" onclick="saveMemo('${memoId}')">保存</button>
-                <button class="btn" onclick="cancelEdit('${memoId}')">キャンセル</button>
-            `;
-        };
-
-        window.saveMemo = async (memoId) => {
-            const memoItem = document.querySelector(`[data-memo-id="${memoId}"]`);
-            const textarea = memoItem.querySelector('textarea');
-            const newText = textarea.value.trim();
-
-            if (!newText) {
-                alert('メモの内容を入力してください');
-                return;
-            }
-
-            try {
-                await updateDoc(doc(db, `users/${currentUser.uid}/memos`, memoId), {
-                    text: newText,
-                    updatedAt: serverTimestamp()
-                });
-            } catch (error) {
-                console.error('メモ更新エラー:', error);
-                alert('メモの更新に失敗しました');
-            }
-        };
-
-        window.cancelEdit = (memoId) => {
-            const memoItem = document.querySelector(`[data-memo-id="${memoId}"]`);
-            memoItem.classList.remove('editing');
-            const textarea = memoItem.querySelector('textarea');
-            if (textarea) textarea.remove();
-        };
-
-        window.deleteMemo = async (memoId) => {
-            if (!confirm('このメモを削除しますか？')) return;
-
-            try {
-                await deleteDoc(doc(db, `users/${currentUser.uid}/memos`, memoId));
-            } catch (error) {
-                console.error('メモ削除エラー:', error);
-                alert('メモの削除に失敗しました');
-            }
-        };
-
         // 認証状態の監視
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -574,7 +501,7 @@
 
             memosUnsubscribe = onSnapshot(q, (snapshot) => {
                 loading.classList.add('hidden');
-
+                
                 if (snapshot.empty) {
                     memoList.innerHTML = '';
                     emptyState.classList.remove('hidden');
@@ -584,9 +511,9 @@
                 emptyState.classList.add('hidden');
                 memoList.innerHTML = '';
 
-                snapshot.forEach((doc) => {
-                    const memo = doc.data();
-                    const memoItem = createMemoElement(doc.id, memo);
+                snapshot.forEach((docSnapshot) => {
+                    const memo = docSnapshot.data();
+                    const memoItem = createMemoElement(docSnapshot.id, memo);
                     memoList.appendChild(memoItem);
                 });
             }, (error) => {
@@ -603,28 +530,124 @@
 
             const createdAt = memo.createdAt ? new Date(memo.createdAt.seconds * 1000).toLocaleString('ja-JP') : '作成中...';
 
-            div.innerHTML = `
-                <div class="memo-content">${escapeHtml(memo.text)}</div>
-                <div class="memo-footer">
-                    <span>${createdAt}</span>
-                    <div class="memo-actions">
-                        <button class="btn" onclick="editMemo('${id}', ${JSON.stringify(memo.text).replace(/'/g, "&#39;")})">編集</button>
-                        <button class="btn" onclick="deleteMemo('${id}')">削除</button>
-                    </div>
-                </div>
-                <div class="edit-actions"></div>
-            `;
+            // メモ内容
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'memo-content';
+            contentDiv.textContent = memo.text;
+
+            // フッター
+            const footerDiv = document.createElement('div');
+            footerDiv.className = 'memo-footer';
+
+            const dateSpan = document.createElement('span');
+            dateSpan.textContent = createdAt;
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'memo-actions';
+
+            // 編集ボタン
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn';
+            editBtn.textContent = '編集';
+            editBtn.onclick = () => editMemo(id, memo.text);
+
+            // 削除ボタン
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn';
+            deleteBtn.textContent = '削除';
+            deleteBtn.onclick = () => deleteMemo(id);
+
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(deleteBtn);
+
+            footerDiv.appendChild(dateSpan);
+            footerDiv.appendChild(actionsDiv);
+
+            // 編集アクション用div
+            const editActionsDiv = document.createElement('div');
+            editActionsDiv.className = 'edit-actions';
+
+            div.appendChild(contentDiv);
+            div.appendChild(footerDiv);
+            div.appendChild(editActionsDiv);
 
             return div;
         }
 
-        // ヘルパー関数
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        // 編集機能
+        function editMemo(memoId, currentText) {
+            const memoItem = document.querySelector(`[data-memo-id="${memoId}"]`);
+            if (!memoItem) return;
+
+            memoItem.classList.add('editing');
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = currentText;
+            textarea.style.minHeight = '80px';
+            
+            const editActions = memoItem.querySelector('.edit-actions');
+            memoItem.insertBefore(textarea, editActions);
+            
+            // 保存ボタン
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn btn-primary';
+            saveBtn.textContent = '保存';
+            saveBtn.onclick = () => saveMemo(memoId, textarea);
+
+            // キャンセルボタン
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn';
+            cancelBtn.textContent = 'キャンセル';
+            cancelBtn.onclick = () => cancelEdit(memoId);
+
+            editActions.appendChild(saveBtn);
+            editActions.appendChild(cancelBtn);
         }
 
+        async function saveMemo(memoId, textarea) {
+            const newText = textarea.value.trim();
+
+            if (!newText) {
+                alert('メモの内容を入力してください');
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, `users/${currentUser.uid}/memos`, memoId), {
+                    text: newText,
+                    updatedAt: serverTimestamp()
+                });
+                // 編集モードを解除（リアルタイム更新で自動的に反映される）
+            } catch (error) {
+                console.error('メモ更新エラー:', error);
+                alert('メモの更新に失敗しました');
+            }
+        }
+
+        function cancelEdit(memoId) {
+            const memoItem = document.querySelector(`[data-memo-id="${memoId}"]`);
+            if (!memoItem) return;
+
+            memoItem.classList.remove('editing');
+            const textarea = memoItem.querySelector('textarea');
+            const editActions = memoItem.querySelector('.edit-actions');
+            
+            if (textarea) textarea.remove();
+            if (editActions) editActions.innerHTML = '';
+        }
+
+        async function deleteMemo(memoId) {
+            if (!confirm('このメモを削除しますか？')) return;
+
+            try {
+                await deleteDoc(doc(db, `users/${currentUser.uid}/memos`, memoId));
+            } catch (error) {
+                console.error('メモ削除エラー:', error);
+                alert('メモの削除に失敗しました');
+            }
+        }
+
+        // ヘルパー関数
         function getErrorMessage(code) {
             const messages = {
                 'auth/email-already-in-use': 'このメールアドレスは既に使用されています',
@@ -638,5 +661,4 @@
         }
     </script>
 </body>
-
 </html>
